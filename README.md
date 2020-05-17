@@ -1,6 +1,33 @@
 # Tagged
 
-**TODO: Add description**
+Handle tagged value tuples, such as `{:ok, value}` and `{:error, reason}`, in
+various ways, by constructing macros for the regular matching constructs.
+
+### Construct and Destructure
+
+```elixir
+defmodule Tagged.Status
+  use Tagged
+
+  deftagged ok
+  deftagged error
+end
+
+iex> use Tagged.Status
+iex> ok(:computer)
+{:ok, :computer}
+iex> with error(reason) <- {:ok, :computer}, do: raise reason
+{:ok, :computer}
+```
+
+### Guard Statements
+
+TODO:
+
+### Pipe filters
+
+TBD
+
 
 ## Installation
 
