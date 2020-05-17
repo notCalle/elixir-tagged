@@ -10,10 +10,10 @@ end
 
 defmodule OutcomeTest do
   use ExUnit.Case
-  doctest Tagged.Outcome
+  doctest Tagged.Outcome, only: [:moduledoc]
 end
 
 defmodule StatusTest do
   use ExUnit.Case
-  doctest Tagged.Status
+  doctest Tagged.Status, only: [:moduledoc]
 end

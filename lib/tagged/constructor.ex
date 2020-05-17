@@ -22,10 +22,22 @@ defmodule Tagged.Constructor do
 
   @doc false
   def __deftagged__(name, tag) do
-    quote bind_quoted: [
-            name: name |> Macro.to_string() |> String.to_atom(),
-            tag: tag |> Macro.to_string() |> String.to_atom() |> Macro.escape()
-          ] do
+    name = name |> Macro.to_string() |> String.to_atom()
+    tag = tag |> Macro.to_string() |> String.to_atom()
+
+    quote do
+      @doc """
+      Constructor for `#{unquote(tag)}` tagged value tuples. Can also be used
+      to destructure tuples.
+
+          iex> use #{unquote(__MODULE__)}
+          iex> with #{unquote(name)}(val) <- {:#{unquote(tag)}, :match}, do: val
+          :match
+          iex> with #{unquote(name)}(_) <- {:not_#{unquote(tag)}, :match}, do: true
+          {:not_#{unquote(tag)}, :match}
+
+      """
+      @spec unquote(name)(term()) :: {unquote(tag), term()}
       defmacro unquote(name)(value) do
         {unquote(tag), value}
       end
