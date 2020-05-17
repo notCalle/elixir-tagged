@@ -12,6 +12,11 @@ defmodule Tagged do
         deftagged error
       end
 
+      iex> use Tagged.Status
+      iex> ok(:computer)
+      {:ok, :computer}
+      iex> with error(reason) <- {:ok, :computer}, do: raise reason
+      {:ok, :computer}
 
   ## Guard Statements
 
