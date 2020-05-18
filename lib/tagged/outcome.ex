@@ -11,6 +11,6 @@ defmodule Tagged.Outcome do
   """
   use Tagged
 
-  deftagged(success, ok)
-  deftagged(failure, error)
+  deftagged(ok, as: success)
+  deftagged(error, as: failure)
 end
