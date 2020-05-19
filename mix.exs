@@ -25,9 +25,9 @@ defmodule Tagged.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:dialyxir, "~> 1.0", only: :dev},
-      {:ex_doc, "~> 0.22", only: :dev},
-      {:excoveralls, "~> 0.12", only: :test}
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.22", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.12", only: :test, runtime: false},
     ]
   end
 
