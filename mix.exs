@@ -1,10 +1,12 @@
 defmodule Tagged.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :tagged,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -28,6 +30,7 @@ defmodule Tagged.MixProject do
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:ex_doc, "~> 0.22", only: :dev, runtime: false},
       {:excoveralls, "~> 0.12", only: :test, runtime: false},
+      {:version_tasks, "~> 0.11", only: :dev, runtime: false}
     ]
   end
 
