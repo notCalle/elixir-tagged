@@ -9,8 +9,9 @@ defmodule Tagged.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      description: "Construct and destructure tagged value tuples",
-      test_coverage: [tool: ExCoveralls]
+      description: description(),
+      test_coverage: [tool: ExCoveralls],
+      source_url: "https://github.com/notCalle/elixir-tagged.git"
     ]
   end
 
@@ -24,10 +25,16 @@ defmodule Tagged.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:dialyxir, "~> 0.5", only: :dev, runtime: false},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.3", only: :test, runtime: false}
+      {:dialyxir, "~> 1.0", only: :dev},
+      {:ex_doc, "~> 0.22", only: :dev},
+      {:excoveralls, "~> 0.12", only: :test}
     ]
+  end
+
+  defp description do
+    """
+    Generates definitions of various things related to {:tag, value} tuples.
+    """
   end
 
   defp package do

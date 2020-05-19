@@ -36,6 +36,7 @@ defmodule Tagged.Typedef do
 
         Tagged value tuple, containing term().
   """
+  @moduledoc since: "0.1.0"
 
   ##############################################################################
   ##
@@ -44,7 +45,7 @@ defmodule Tagged.Typedef do
   ##############################################################################
 
   @doc false
-  @spec __deftagged__(Keyword.t()) :: Tagged.macro?()
+  @spec __deftagged__(Keyword.t()) :: Macro.t() | false
   def __deftagged__(params) do
     with true <- Keyword.get(params, :type, true) do
       name = Keyword.get(params, :name_var)

@@ -1,6 +1,6 @@
 defmodule Tagged do
   @moduledoc ~S"""
-  Generates definitions or various things related to tagged value tuples, like
+  Generates definitions of various things related to tagged value tuples, like
   `{:ok, value}` and `{:error, reason}`.
 
   ## Examples
@@ -28,15 +28,8 @@ defmodule Tagged do
 
       Tagged value tuple, containing term().
 
-  ### Guard Statements
-
-  TODO:
-
-  ### Pipe filters
-
-  TBD
-
   """
+  @moduledoc since: "0.1.0"
 
   require __MODULE__.Constructor
   require __MODULE__.Typedef
@@ -57,6 +50,7 @@ defmodule Tagged do
     Override type definition. See `Tagged.Typedef`
 
   """
+  @doc since: "0.1.0"
   defmacro deftagged(tag, opts \\ []) do
     block =
       get_params(tag, Macro.expand_once(opts, __CALLER__), __CALLER__.module)
@@ -77,7 +71,7 @@ defmodule Tagged do
   @typep macro_gen :: (Keyword.t() -> macro?())
 
   @doc false
-  @spec get_params(Macro.t(), Keyword.t(), Module.t()) :: Keyword.t()
+  @spec get_params(Macro.t(), Keyword.t(), module()) :: Keyword.t()
   defp get_params(tag, opts, module) do
     name = Keyword.get(opts, :as, tag)
 

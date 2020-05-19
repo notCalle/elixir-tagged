@@ -38,6 +38,7 @@ defmodule Tagged.Constructor do
         iex> with success(it) <- {:ok, "Computer"}, do: "OK, #{it}!"
         "OK, Computer!"
   """
+  @moduledoc since: "0.1.0"
 
   ################################################################################
   ##

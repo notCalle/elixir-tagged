@@ -9,6 +9,8 @@ defmodule Tagged.Status do
       "Chunky bacon!"
 
   """
+  @moduledoc since: "0.1.0"
+
   use Tagged
 
   deftagged(ok)

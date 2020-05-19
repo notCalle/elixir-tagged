@@ -9,6 +9,8 @@ defmodule Tagged.Outcome do
       "OK, Computer!"
 
   """
+  @moduledoc since: "0.1.0"
+
   use Tagged
 
   deftagged(ok, as: success)
