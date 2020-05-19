@@ -20,17 +20,27 @@ defmodule Tagged do
       iex> with error(reason) <- {:ok, :computer}, do: raise reason
       {:ok, :computer}
 
-  ## Guard Statements
+  ### Type definitions
+
+      _iex> use Tagged.Status
+      _iex> t Tagged.Status.error
+      @type error() :: {:error, term()}
+
+      Tagged value tuple, containing term().
+
+  ### Guard Statements
 
   TODO:
 
-  ## Pipe filters
+  ### Pipe filters
 
   TBD
 
   """
 
   require __MODULE__.Constructor
+  require __MODULE__.Typedef
+
   @doc ~S"""
   Generates a macro that definies all things related to a tagged value tuple,
   `{atom(), term()}`. By default the macro has the same name as the tag, and all
@@ -41,6 +51,10 @@ defmodule Tagged do
   - `as: name`
 
     Override default macro name. See `Tagged.Constructor`
+
+  - `type: false`
+
+    Override type definition. See `Tagged.Typedef`
 
   """
   defmacro deftagged(tag, opts \\ []) do
@@ -69,6 +83,7 @@ defmodule Tagged do
 
     [
       name_atom: name |> Macro.to_string() |> String.to_atom(),
+      name_var: name,
       tag_atom: tag |> Macro.to_string() |> String.to_atom(),
       opts: opts ++ Module.get_attribute(module, :tagged__using__opts, [])
     ]
