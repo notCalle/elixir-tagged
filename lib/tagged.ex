@@ -33,6 +33,7 @@ defmodule Tagged do
 
   require __MODULE__.Constructor
   require __MODULE__.Typedef
+  import KeywordValidator, only: [validate!: 2]
 
   @doc ~S"""
   Generates a macro that definies all things related to a tagged value tuple,
@@ -70,9 +71,15 @@ defmodule Tagged do
   @typep accumulator :: {block(), Keyword.t()}
   @typep macro_gen :: (Keyword.t() -> macro?())
 
+  @opts_schema %{
+    as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    type: [optional: true, type: :boolean, default: true]
+  }
+
   @doc false
   @spec get_params(Macro.t(), Keyword.t(), module()) :: Keyword.t()
   defp get_params(tag, opts, module) do
+    opts = validate!(opts, @opts_schema)
     name = Keyword.get(opts, :as, tag)
 
     [
@@ -109,7 +116,20 @@ defmodule Tagged do
     |> finish()
   end
 
+  @opts_schema %{
+    type: [optional: true, type: :boolean, default: true]
+  }
+
+  @opts_map %{
+    types: :type
+  }
+
   defmacro __using__(opts) do
+    opts =
+      opts
+      |> Enum.map(fn {k, v} -> Map.get(@opts_map, k, v) end)
+      |> validate!(@opts_schema)
+
     quote do
       Module.register_attribute(__MODULE__, :tagged__using__opts, [])
       Module.put_attribute(__MODULE__, :tagged__using__opts, unquote(opts))

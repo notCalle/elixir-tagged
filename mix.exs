@@ -8,6 +8,8 @@ defmodule Tagged.MixProject do
   @version "0.1.0"
 
   @deps [
+    {:keyword_validator, "~> 1.0"},
+    # ----------------------------------------------------------------------
     {:dialyxir, "~> 1.0", only: :dev, runtime: false},
     {:ex_doc, "~> 0.22", only: :dev, runtime: false},
     {:excoveralls, "~> 0.12", only: :test, runtime: false},
