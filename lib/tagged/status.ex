@@ -13,6 +13,6 @@ defmodule Tagged.Status do
 
   use Tagged
 
-  deftagged(ok)
-  deftagged(error)
+  deftagged ok
+  deftagged error
 end
