@@ -16,6 +16,13 @@ defmodule Tagged.MixProject do
     {:version_tasks, "~> 0.11", only: :dev, runtime: false}
   ]
 
+  @docs [
+    main: "Tagged",
+    api_reference: false,
+    extras: ["CHANGELOG.md"],
+    source_ref: "v#{@version}"
+  ]
+
   def project do
     [
       app: :tagged,
@@ -26,7 +33,8 @@ defmodule Tagged.MixProject do
       package: package(),
       description: @description,
       test_coverage: [tool: ExCoveralls],
-      source_url: "https://github.com/notCalle/elixir-tagged.git"
+      source_url: "https://github.com/notCalle/elixir-tagged",
+      docs: @docs
     ]
   end
 
