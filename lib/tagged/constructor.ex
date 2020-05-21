@@ -51,13 +51,14 @@ defmodule Tagged.Constructor do
   def __deftagged__(params) do
     name = Keyword.get(params, :name_atom)
     tag = Keyword.get(params, :tag_atom)
+    module = Keyword.get(params, :module)
 
     quote do
       @doc """
       Constructor for `#{unquote(tag)}` tagged value tuples. Can also be used
       to destructure tuples.
 
-          iex> use #{unquote(__MODULE__)}
+          iex> use #{unquote(module)}
           iex> with #{unquote(name)}(val) <- {:#{unquote(tag)}, :match}, do: val
           :match
           iex> with #{unquote(name)}(_) <- {:not_#{unquote(tag)}, :match}, do: true
