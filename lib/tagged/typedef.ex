@@ -2,15 +2,16 @@ defmodule Tagged.Typedef do
   @moduledoc ~S"""
   Generates type definitions for tagged value tuples.
 
-  This module is executed by default, but can be disabled with `type: false`
-  as keyword argument for either `defmacro` or `use Tagged`.
+  This module is executed by default, but can be disabled for a whole module
+  with keyword argument `types: false` to `use/2`, or for a single definition
+  with keyword argument `type: false` to `deftagged/2`.
 
   ## Examples
 
   - Disable type declaration for all tagged value tuple definitions
 
         defmodule NoTypes do
-          use Tagged, type: false
+          use Tagged, types: false
 
           deftagged foo
         end

@@ -1,7 +1,7 @@
 defmodule Tagged do
   @moduledoc ~S"""
-  Generates definitions of various things related to tagged value tuples, like
-  `{:ok, value}` and `{:error, reason}`.
+  Generates definitions of various things related to tuples with a tagged value,
+  such as the ubiquitous `{:ok, value}` and `{:error, reason}`.
 
   ## Examples
 
@@ -48,7 +48,7 @@ defmodule Tagged do
 
   - `type: false`
 
-    Override type definition. See `Tagged.Typedef`
+    Override generation of type definition. See `Tagged.Typedef`
 
   """
   @doc since: "0.1.0"
@@ -85,9 +85,8 @@ defmodule Tagged do
     [
       name: name |> Macro.to_string() |> String.to_atom(),
       tag: tag |> Macro.to_string() |> String.to_atom(),
-      module: module,
-      opts: opts ++ Module.get_attribute(module, :tagged__using__opts, [])
-    ]
+      module: module
+    ] ++ opts ++ Module.get_attribute(module, :tagged__using__opts, [])
   end
 
   @doc false
@@ -117,7 +116,7 @@ defmodule Tagged do
   end
 
   @opts_schema %{
-    type: [optional: true, type: :boolean, default: true]
+    types: [optional: true, type: :boolean, default: true]
   }
 
   @opts_map %{
@@ -127,8 +126,9 @@ defmodule Tagged do
   defmacro __using__(opts) do
     opts =
       opts
-      |> Enum.map(fn {k, v} -> Map.get(@opts_map, k, v) end)
+      |> Macro.expand_once(__CALLER__)
       |> validate!(@opts_schema)
+      |> Enum.map(fn {k, v} -> {Map.get(@opts_map, k, k), v} end)
 
     quote do
       Module.register_attribute(__MODULE__, :tagged__using__opts, [])
