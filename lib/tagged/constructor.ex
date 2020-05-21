@@ -40,17 +40,17 @@ defmodule Tagged.Constructor do
   """
   @moduledoc since: "0.1.0"
 
-  ################################################################################
+  ##############################################################################
   ##
   ##  Public API ends here, internal helper functions follows
   ##
-  ################################################################################
+  ##############################################################################
 
   @doc false
   @spec __deftagged__(Keyword.t()) :: Macro.t()
   def __deftagged__(params) do
-    name = Keyword.get(params, :name_atom)
-    tag = Keyword.get(params, :tag_atom)
+    name = Keyword.get(params, :name)
+    tag = Keyword.get(params, :tag)
     module = Keyword.get(params, :module)
 
     quote do
@@ -65,7 +65,6 @@ defmodule Tagged.Constructor do
           {:not_#{unquote(tag)}, :match}
 
       """
-      @spec unquote(name)(term()) :: unquote(name)()
       defmacro unquote(name)(value) do
         {unquote(tag), value}
       end

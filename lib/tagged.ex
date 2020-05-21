@@ -83,9 +83,8 @@ defmodule Tagged do
     name = Keyword.get(opts, :as, tag)
 
     [
-      name_atom: name |> Macro.to_string() |> String.to_atom(),
-      name_var: name,
-      tag_atom: tag |> Macro.to_string() |> String.to_atom(),
+      name: name |> Macro.to_string() |> String.to_atom(),
+      tag: tag |> Macro.to_string() |> String.to_atom(),
       module: module,
       opts: opts ++ Module.get_attribute(module, :tagged__using__opts, [])
     ]

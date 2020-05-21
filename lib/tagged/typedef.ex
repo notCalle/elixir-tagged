@@ -32,9 +32,12 @@ defmodule Tagged.Typedef do
         _iex> t NoTypes.foo
         No type information for NoTypes.foo was found or NoTypes.foo is private
         _iex> t NoTypes.bar
-        @type bar() :: {:bar, term()}
+        @type bar() :: bar(term())
 
-        Tagged value tuple, containing term().
+        @type bar(t) :: {:bar, value :: t}
+
+        Tagged value tuple with a wrapped type t() \\ term()
+
   """
   @moduledoc since: "0.1.0"
 
@@ -48,15 +51,15 @@ defmodule Tagged.Typedef do
   @spec __deftagged__(Keyword.t()) :: Macro.t() | false
   def __deftagged__(params) do
     with true <- Keyword.get(params, :type, true) do
-      name = Keyword.get(params, :name_var)
-      tag = Keyword.get(params, :tag_atom)
+      name = Keyword.get(params, :name)
+      tag = Keyword.get(params, :tag)
 
       quote do
-        @typedoc "Tagged value tuple, containing `term()`."
-        @type unquote(name) :: {unquote(tag), term()}
-
-        # FIXME: Why doesn't this work?
-        # @type unquote(name)(t) :: {unquote(tag), t}
+        @typedoc ~S"""
+        Tagged value tuple with a wrapped type `t` \\\\ `term()`
+        """
+        @type unquote(name)(t) :: {unquote(tag), value :: t}
+        @type unquote(name)() :: unquote(name)(term())
       end
     end
   end
