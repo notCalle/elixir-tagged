@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Option keywords are now validated on both module and macro level.
+
+### Fixed
+
+- Module level `use` options was not properly unwrapped.
+- Generated constructor doc examples referenced the wrong module.
+- Code formatting was not configured to keep `deftagged` without parenthesis.
+
 ## [v0.1.0] - 2020-05-19
 
 Initial package release.
