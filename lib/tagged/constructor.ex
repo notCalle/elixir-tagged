@@ -71,43 +71,6 @@ defmodule Tagged.Constructor do
     end
   end
 
-  @spec generate_type([Macro.t()], atom(), atom()) :: [Macro.t()]
-  defp generate_type(block, name, tag) do
-    name = Macro.var(name, nil)
-
-    [
-      quote do
-        @typedoc "Tagged value type, containing `term()`."
-        @type unquote(name) :: {unquote(tag), term()}
-      end
-      | block
-    ]
-  end
-
-  @spec generate_macro([Macro.t()], atom(), atom()) :: [Macro.t()]
-  defp generate_macro(block, name, tag) do
-    [
-      quote do
-        @doc """
-        Constructor for `#{unquote(tag)}` tagged value tuples. Can also be used
-        to destructure tuples.
-
-            iex> use #{unquote(__MODULE__)}
-            iex> with #{unquote(name)}(val) <- {:#{unquote(tag)}, :match}, do: val
-            :match
-            iex> with #{unquote(name)}(_) <- {:not_#{unquote(tag)}, :match}, do: true
-            {:not_#{unquote(tag)}, :match}
-
-        """
-        @spec unquote(name)(term()) :: unquote(name)()
-        defmacro unquote(name)(value) do
-          {unquote(tag), value}
-        end
-      end
-      | block
-    ]
-  end
-
   defmacro __using__(opts) do
     quote do
       import unquote(__MODULE__), unquote(opts)
