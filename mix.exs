@@ -5,7 +5,7 @@ defmodule Tagged.MixProject do
   Generates definitions of various things related to `{:tag, value}` tuples.
   """
 
-  @version "0.1.0"
+  @version "0.2.0"
 
   @deps [
     {:keyword_validator, "~> 1.0"},
