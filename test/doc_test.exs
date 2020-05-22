@@ -1,6 +1,9 @@
 defmodule DocTest do
   use ExUnit.Case
 
+  doctest Tagged
+  doctest Tagged.Constructor
+
   defmodule PipeWith do
     use Tagged
 
@@ -23,9 +26,21 @@ defmodule DocTest do
     def try_recovery({_, x}), do: failure(not_a_number(x))
   end
 
-  doctest Tagged
-  doctest Tagged.Constructor
   doctest Tagged.PipeWith
+
+  defmodule NoTypes do
+    use Tagged, types: false
+
+    deftagged foo
+  end
+
+  defmodule SomeTypes do
+    use Tagged
+
+    deftagged foo, type: false
+    deftagged bar
+  end
+
   doctest Tagged.Typedef
   doctest Tagged.Outcome
   doctest Tagged.Status

@@ -10,29 +10,29 @@ defmodule Tagged.Typedef do
 
   - Disable type declaration for all tagged value tuple definitions
 
-        defmodule NoTypes do
+        defmodule DocTest.NoTypes do
           use Tagged, types: false
 
           deftagged foo
         end
 
-        _iex> use NoTypes
-        _iex> t NoTypes.foo
-        No type information for NoTypes.foo was found or NoTypes.foo is private
+        _iex> use DocTest.NoTypes
+        _iex> t foo
+        No type information for Kernel.foo was found or Kernel.foo is private
 
   - Override type declaration for a single tagged value tuple definition
 
-        defmodule SomeTypes do
+        defmodule DocTest.SomeTypes do
           use Tagged
 
           deftagged foo, type: false
           deftagged bar
         end
 
-        _iex> use Types
-        _iex> t NoTypes.foo
-        No type information for NoTypes.foo was found or NoTypes.foo is private
-        _iex> t NoTypes.bar
+        _iex> use DocTest.SomeTypes
+        _iex> t foo
+        No type information for Kernel.foo was found or Kernel.foo is private
+        _iex> t bar
         @type bar() :: bar(term())
 
         @type bar(t) :: {:bar, value :: t}

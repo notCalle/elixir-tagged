@@ -62,6 +62,10 @@ defmodule Tagged do
 
     Override generation of type definition. See `Tagged.Typedef`
 
+  - `pipe_with: false`
+
+    Override generation of pipe filter. See `Tagged.PipeWith`
+
   """
   @doc since: "0.1.0"
   defmacro deftagged(tag, opts \\ []) do
