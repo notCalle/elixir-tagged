@@ -12,7 +12,6 @@ defmodule Tagged.MixProject do
     # ----------------------------------------------------------------------
     {:dialyxir, "~> 1.0", only: :dev, runtime: false},
     {:ex_doc, "~> 0.22", only: :dev, runtime: false},
-    {:excoveralls, "~> 0.12", only: :test, runtime: false},
     {:version_tasks, "~> 0.11", only: :dev, runtime: false}
   ]
 
@@ -32,7 +31,6 @@ defmodule Tagged.MixProject do
       deps: @deps,
       package: package(),
       description: @description,
-      test_coverage: [tool: ExCoveralls],
       source_url: "https://github.com/notCalle/elixir-tagged",
       docs: @docs
     ]
