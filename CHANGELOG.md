@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Selective function execution in pipes.
+
 ### Changed
 
 - Option keywords are now validated on both module and macro level.

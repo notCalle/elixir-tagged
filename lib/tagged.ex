@@ -20,6 +20,8 @@ defmodule Tagged do
       iex> with error(reason) <- {:ok, :computer}, do: raise reason
       {:ok, :computer}
 
+  See `Tagged.Constructor` for further details.
+
   ### Type definitions
 
       _iex> use Tagged.Status
@@ -27,6 +29,16 @@ defmodule Tagged do
       @type error() :: {:error, term()}
 
       Tagged value tuple, containing term().
+
+  See `Tagged.Typedef` for further details.
+
+  ### Pipe selective execution
+
+      iex> use Tagged.Status
+      iex> ok(:computer) |> with_ok(& "OK, #{&1}")
+      "OK, computer"
+
+  See `Tagged.PipeWith` for further details.
 
   """
   @moduledoc since: "0.1.0"
@@ -73,7 +85,8 @@ defmodule Tagged do
 
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
-    type: [optional: true, type: :boolean, default: true]
+    type: [optional: true, type: :boolean],
+    pipe_with: [optional: true, type: :boolean]
   }
 
   @doc false
@@ -111,12 +124,14 @@ defmodule Tagged do
   defp generate_parts(params) do
     start(params)
     |> pipe(&__MODULE__.Constructor.__deftagged__(&1))
+    |> pipe(&__MODULE__.PipeWith.__deftagged__(&1))
     |> pipe(&__MODULE__.Typedef.__deftagged__(&1))
     |> finish()
   end
 
   @opts_schema %{
-    types: [optional: true, type: :boolean, default: true]
+    types: [optional: true, type: :boolean],
+    pipe_with: [optional: true, type: :boolean]
   }
 
   @opts_map %{
