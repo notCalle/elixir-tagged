@@ -1,9 +1,9 @@
 # Tagged
 
-Handle tagged value tuples, such as `{:ok, value}` and `{:error, reason}`, in
-various ways, by constructing macros for the regular matching constructs.
+Generates definitions of various things related to tuples with a tagged value,
+such as the ubiquitous `{:ok, value}` and `{:error, reason}`.
 
-### Construct and Destructure
+## Examples
 
 ```elixir
 defmodule Tagged.Status
@@ -12,7 +12,11 @@ defmodule Tagged.Status
   deftagged ok
   deftagged error
 end
+```
 
+### Construct and Destructure
+
+```elixir
 iex> use Tagged.Status
 iex> ok(:computer)
 {:ok, :computer}
@@ -30,18 +34,18 @@ _iex> t Tagged.Status.error
 Tagged value tuple, containing term().
 ```
 
-### Pipe selective execution
+### Selective execution with unwrapped value
+
 ```elixir
 iex> use Tagged.Status
 iex> ok(:computer) |> with_ok(& "OK, #{&1}")
 "OK, computer"
 ```
 
-
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `tagged` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `tagged` to your list of dependencies
+in `mix.exs`:
 
 ```elixir
 def deps do
@@ -51,7 +55,5 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/tagged](https://hexdocs.pm/tagged).
+Documentation can be found at [https://hexdocs.pm/tagged](https://hexdocs.pm/tagged).
 
