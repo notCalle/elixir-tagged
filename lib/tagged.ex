@@ -1,7 +1,7 @@
 defmodule Tagged do
   @moduledoc ~S"""
-  Generates definitions of various things related to tagged value tuples, like
-  `{:ok, value}` and `{:error, reason}`.
+  Generates definitions of various things related to tuples with a tagged value,
+  such as the ubiquitous `{:ok, value}` and `{:error, reason}`.
 
   ## Examples
 
@@ -20,6 +20,8 @@ defmodule Tagged do
       iex> with error(reason) <- {:ok, :computer}, do: raise reason
       {:ok, :computer}
 
+  See `Tagged.Constructor` for further details.
+
   ### Type definitions
 
       _iex> use Tagged.Status
@@ -28,11 +30,22 @@ defmodule Tagged do
 
       Tagged value tuple, containing term().
 
+  See `Tagged.Typedef` for further details.
+
+  ### Pipe selective execution
+
+      iex> use Tagged.Status
+      iex> ok(:computer) |> with_ok(& "OK, #{&1}")
+      "OK, computer"
+
+  See `Tagged.PipeWith` for further details.
+
   """
   @moduledoc since: "0.1.0"
 
   require __MODULE__.Constructor
   require __MODULE__.Typedef
+  import KeywordValidator, only: [validate!: 2]
 
   @doc ~S"""
   Generates a macro that definies all things related to a tagged value tuple,
@@ -47,7 +60,7 @@ defmodule Tagged do
 
   - `type: false`
 
-    Override type definition. See `Tagged.Typedef`
+    Override generation of type definition. See `Tagged.Typedef`
 
   """
   @doc since: "0.1.0"
@@ -70,17 +83,23 @@ defmodule Tagged do
   @typep accumulator :: {block(), Keyword.t()}
   @typep macro_gen :: (Keyword.t() -> macro?())
 
+  @opts_schema %{
+    as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    type: [optional: true, type: :boolean],
+    pipe_with: [optional: true, type: :boolean]
+  }
+
   @doc false
   @spec get_params(Macro.t(), Keyword.t(), module()) :: Keyword.t()
   defp get_params(tag, opts, module) do
+    opts = validate!(opts, @opts_schema)
     name = Keyword.get(opts, :as, tag)
 
     [
-      name_atom: name |> Macro.to_string() |> String.to_atom(),
-      name_var: name,
-      tag_atom: tag |> Macro.to_string() |> String.to_atom(),
-      opts: opts ++ Module.get_attribute(module, :tagged__using__opts, [])
-    ]
+      name: name |> Macro.to_string() |> String.to_atom(),
+      tag: tag |> Macro.to_string() |> String.to_atom(),
+      module: module
+    ] ++ opts ++ Module.get_attribute(module, :tagged__using__opts, [])
   end
 
   @doc false
@@ -105,11 +124,27 @@ defmodule Tagged do
   defp generate_parts(params) do
     start(params)
     |> pipe(&__MODULE__.Constructor.__deftagged__(&1))
+    |> pipe(&__MODULE__.PipeWith.__deftagged__(&1))
     |> pipe(&__MODULE__.Typedef.__deftagged__(&1))
     |> finish()
   end
 
+  @opts_schema %{
+    types: [optional: true, type: :boolean],
+    pipe_with: [optional: true, type: :boolean]
+  }
+
+  @opts_map %{
+    types: :type
+  }
+
   defmacro __using__(opts) do
+    opts =
+      opts
+      |> Macro.expand_once(__CALLER__)
+      |> validate!(@opts_schema)
+      |> Enum.map(fn {k, v} -> {Map.get(@opts_map, k, k), v} end)
+
     quote do
       Module.register_attribute(__MODULE__, :tagged__using__opts, [])
       Module.put_attribute(__MODULE__, :tagged__using__opts, unquote(opts))

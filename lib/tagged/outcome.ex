@@ -13,6 +13,6 @@ defmodule Tagged.Outcome do
 
   use Tagged
 
-  deftagged(ok, as: success)
-  deftagged(error, as: failure)
+  deftagged ok, as: success
+  deftagged error, as: failure
 end

@@ -20,13 +20,22 @@ iex> with error(reason) <- {:ok, :computer}, do: raise reason
 {:ok, :computer}
 ```
 
-### Guard Statements
+### Type definitions
 
-TODO:
+```elixir
+_iex> use Tagged.Status
+_iex> t Tagged.Status.error
+@type error() :: {:error, term()}
 
-### Pipe filters
+Tagged value tuple, containing term().
+```
 
-TBD
+### Pipe selective execution
+```elixir
+iex> use Tagged.Status
+iex> ok(:computer) |> with_ok(& "OK, #{&1}")
+"OK, computer"
+```
 
 
 ## Installation
