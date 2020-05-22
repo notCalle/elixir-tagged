@@ -1,3 +1,5 @@
+![Elixir CI](https://github.com/notCalle/elixir-tagged/workflows/Elixir%20CI/badge.svg)
+
 # Tagged
 
 Generates definitions of various things related to tuples with a tagged value,
