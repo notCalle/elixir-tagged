@@ -46,7 +46,7 @@ by adding `tagged` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:tagged, "~> 0.1.0"}
+    {:tagged, "~> 0.2.0"}
   ]
 end
 ```

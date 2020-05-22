@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.0] - 2020-05-22
+
 ### Added
 
 - Selective function execution in pipes.
@@ -31,5 +33,6 @@ Initial package release.
 - Generate a constructor / destructuring macro for a tag.
 - Generate a typedef for a tag.
 
-[Unreleased]: https://github.com/notCalle/elixir-tagged/compare/v0.1.0..HEAD
+[Unreleased]: https://github.com/notCalle/elixir-tagged/compare/v0.2.0..HEAD
+[v0.2.0]: https://github.com/notCalle/elixir-tagged/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/notCalle/elixir-tagged/releases/tag/v0.1.0
