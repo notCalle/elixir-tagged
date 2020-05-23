@@ -1,5 +1,9 @@
 name: Elixir CI
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  MIX_ENV: test
+
 on:
   push:
     branches: [ master ]
@@ -8,17 +12,22 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup elixir
       uses: actions/setup-elixir@v1
       with:
-        elixir-version: '1.9.4' # Define the elixir version [required]
-        otp-version: '22.2' # Define the OTP version [required]
+        elixir-version: '1.9.x' # Define the elixir version [required]
+        otp-version: '22.x' # Define the OTP version [required]
+
     - name: Install Dependencies
-      run: mix deps.get
+      run: mix deps.get --only test
+
+    - name: Compile
+      run: mix compile
+
     - name: Run Tests
-      run: mix test --cover
+      run: mix coveralls.github
