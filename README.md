@@ -1,5 +1,5 @@
 ![Elixir CI](https://github.com/notCalle/elixir-tagged/workflows/Elixir%20CI/badge.svg)
-
+[![Coverage Status](https://coveralls.io/repos/github/notCalle/elixir-tagged/badge.svg?branch=master)](https://coveralls.io/github/notCalle/elixir-tagged?branch=master)
 # Tagged
 
 Generates definitions of various things related to tuples with a tagged value,
