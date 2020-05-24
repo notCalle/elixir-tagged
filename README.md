@@ -1,5 +1,9 @@
 ![Elixir CI](https://github.com/notCalle/elixir-tagged/workflows/Elixir%20CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/notCalle/elixir-tagged/badge.svg?branch=master)](https://coveralls.io/github/notCalle/elixir-tagged?branch=master)
+[![Hex package](https://img.shields.io/hexpm/v/tagged)](https://hex.pm/packages/tagged)
+[![Hexdocs](https://img.shields.io/badge/hex-docs-orange)](https://hexdocs.pm/tagged)
+[![License](https://img.shields.io/github/license/notCalle/elixir-tagged)](https://github.com/notCalle/elixir-tagged/blob/master/LICENSE.txt)
+
 # Tagged
 
 Generates definitions of various things related to tuples with a tagged value,
@@ -56,6 +60,3 @@ def deps do
   ]
 end
 ```
-
-Documentation can be found at [https://hexdocs.pm/tagged](https://hexdocs.pm/tagged).
-
