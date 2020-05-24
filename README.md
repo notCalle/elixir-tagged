@@ -56,7 +56,7 @@ in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:tagged, "~> 0.2.0"}
+    {:tagged, "~> 0.3.0"}
   ]
 end
 ```
