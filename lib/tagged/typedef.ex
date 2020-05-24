@@ -47,7 +47,7 @@ defmodule Tagged.Typedef do
         defmodule DocTest.OpaqueType do
           use Tagged
 
-          deftagged foo, of: integer()
+          deftagged foo, of: Pid.t()
         end
 
         _iex> use DocTest.OpaqueType

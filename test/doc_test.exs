@@ -42,6 +42,12 @@ defmodule DocTest do
     deftagged bar
   end
 
+  defmodule DocTest.OpaqueType do
+    use Tagged
+
+    deftagged foo, of: Pid.t()
+  end
+
   doctest Tagged.Typedef
   doctest Tagged.Outcome
   doctest Tagged.Status

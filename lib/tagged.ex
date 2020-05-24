@@ -92,7 +92,7 @@ defmodule Tagged do
 
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
-    of: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    of: [optional: true, type: {:tuple, {:any, :list, :any}}],
     guard: [optional: true, type: :boolean],
     type: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
