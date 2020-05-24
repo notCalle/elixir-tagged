@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Generate `defguard` macros.
+- Option to declare the wrapped type statically.
+
+### Changed
+
+- Generated typedefs are `opaque`.
+
 ## [v0.2.0] - 2020-05-22
 
 ### Added

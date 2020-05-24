@@ -14,17 +14,15 @@ defmodule Tagged do
 
   ### Construct and Destructure
 
-      iex> use Tagged.Status
-      iex> ok(:computer)
+      iex> require Tagged.Status, as: Status
+      iex> Status.ok(:computer)
       {:ok, :computer}
-      iex> with error(reason) <- {:ok, :computer}, do: raise reason
+      iex> with Status.error(reason) <- {:ok, :computer}, do: raise reason
       {:ok, :computer}
 
   See `Tagged.Constructor` for further details.
 
   ### Type definitions
-
-      _iex> use Tagged.Status
       _iex> t Tagged.Status.error
       @type error() :: {:error, term()}
 
@@ -34,7 +32,8 @@ defmodule Tagged do
 
   ### Pipe selective execution
 
-      iex> use Tagged.Status
+      iex> require Tagged.Status
+      iex> import Tagged.Status, only: [ok: 1, with_ok: 2]
       iex> ok(:computer) |> with_ok(& "OK, #{&1}")
       "OK, computer"
 
@@ -56,11 +55,19 @@ defmodule Tagged do
 
   - `as: name`
 
-    Override default macro name. See `Tagged.Constructor`
+    Override default macro name. See `Tagged.Constructor`.
+
+  - `of: typedef`
+
+    Declare the wrapped type statically, making it opaque. See `Tagged.Typedef`.
 
   - `type: false`
 
-    Override generation of type definition. See `Tagged.Typedef`
+    Override generation of type definition. See `Tagged.Typedef`.
+
+  - `pipe_with: false`
+
+    Override generation of pipe filter. See `Tagged.PipeWith`.
 
   """
   @doc since: "0.1.0"
@@ -85,6 +92,8 @@ defmodule Tagged do
 
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    of: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    guard: [optional: true, type: :boolean],
     type: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
   }
@@ -124,17 +133,20 @@ defmodule Tagged do
   defp generate_parts(params) do
     start(params)
     |> pipe(&__MODULE__.Constructor.__deftagged__(&1))
+    |> pipe(&__MODULE__.Guard.__deftagged__(&1))
     |> pipe(&__MODULE__.PipeWith.__deftagged__(&1))
     |> pipe(&__MODULE__.Typedef.__deftagged__(&1))
     |> finish()
   end
 
   @opts_schema %{
+    guards: [optional: true, type: :boolean],
     types: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
   }
 
   @opts_map %{
+    guards: :guard,
     types: :type
   }
 
@@ -151,6 +163,9 @@ defmodule Tagged do
 
       import unquote(__MODULE__)
 
+      @deprecated """
+      Use `require/2` and `import/2` instead.
+      """
       defmacro __using__(opts) do
         quote do: import(unquote(__MODULE__), unquote(opts))
       end

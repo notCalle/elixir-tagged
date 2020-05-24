@@ -12,8 +12,8 @@ defmodule Tagged.MixProject do
     # ----------------------------------------------------------------------
     {:dialyxir, "~> 1.0", only: :dev, runtime: false},
     {:ex_doc, "~> 0.22", only: :dev, runtime: false},
-    {:excoveralls, "~> 0.12", only: :test, runtime: false},
-    {:version_tasks, "~> 0.11", only: :dev, runtime: false}
+    {:version_tasks, "~> 0.11", only: :dev, runtime: false},
+    {:excoveralls, "~>0.12", only: :test}
   ]
 
   @docs [
@@ -26,15 +26,21 @@ defmodule Tagged.MixProject do
   def project do
     [
       app: :tagged,
-      version: @version,
-      elixir: "~> 1.10",
-      start_permanent: Mix.env() == :prod,
       deps: @deps,
-      package: package(),
       description: @description,
-      test_coverage: [tool: ExCoveralls],
+      docs: @docs,
+      elixir: "~> 1.9",
+      package: package(),
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
       source_url: "https://github.com/notCalle/elixir-tagged",
-      docs: @docs
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      version: @version
     ]
   end
 
