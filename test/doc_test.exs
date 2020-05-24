@@ -3,6 +3,7 @@ defmodule DocTest do
 
   doctest Tagged
   doctest Tagged.Constructor
+  doctest Tagged.Guard
 
   defmodule PipeWith do
     use Tagged

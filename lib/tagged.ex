@@ -89,6 +89,7 @@ defmodule Tagged do
 
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    guard: [optional: true, type: :boolean],
     type: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
   }
@@ -128,17 +129,20 @@ defmodule Tagged do
   defp generate_parts(params) do
     start(params)
     |> pipe(&__MODULE__.Constructor.__deftagged__(&1))
+    |> pipe(&__MODULE__.Guard.__deftagged__(&1))
     |> pipe(&__MODULE__.PipeWith.__deftagged__(&1))
     |> pipe(&__MODULE__.Typedef.__deftagged__(&1))
     |> finish()
   end
 
   @opts_schema %{
+    guards: [optional: true, type: :boolean],
     types: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
   }
 
   @opts_map %{
+    guards: :guard,
     types: :type
   }
 
