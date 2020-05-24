@@ -17,7 +17,8 @@ defmodule Tagged.Constructor do
           deftagged error
         end
 
-        iex> use Tagged.Status
+        iex> require Tagged.Status
+        iex> import Tagged.Status, only: [ok: 1]
         iex> ok(:computer)
         {:ok, :computer}
         iex> with ok(it) <- Keyword.fetch([a: "bacon"], :a), do: "Chunky #{it}!"
@@ -32,7 +33,8 @@ defmodule Tagged.Constructor do
           deftagged error, as: failure
         end
 
-        iex> use Tagged.Outcome
+        iex> require Tagged.Outcome
+        iex> import Tagged.Outcome, only: [failure: 1, success: 1]
         iex> failure(:is_human)
         {:error, :is_human}
         iex> with success(it) <- {:ok, "Computer"}, do: "OK, #{it}!"
@@ -58,7 +60,8 @@ defmodule Tagged.Constructor do
       Constructor for `#{unquote(tag)}` tagged value tuples. Can also be used
       to destructure tuples.
 
-          iex> use #{unquote(module)}
+          iex> require #{unquote(module)}
+          iex> import #{unquote(module)}
           iex> with #{unquote(name)}(val) <- {:#{unquote(tag)}, :match}, do: val
           :match
           iex> with #{unquote(name)}(_) <- {:not_#{unquote(tag)}, :match}, do: true
@@ -68,12 +71,6 @@ defmodule Tagged.Constructor do
       defmacro unquote(name)(value) do
         {unquote(tag), value}
       end
-    end
-  end
-
-  defmacro __using__(opts) do
-    quote do
-      import unquote(__MODULE__), unquote(opts)
     end
   end
 end

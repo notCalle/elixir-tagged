@@ -14,17 +14,15 @@ defmodule Tagged do
 
   ### Construct and Destructure
 
-      iex> use Tagged.Status
-      iex> ok(:computer)
+      iex> require Tagged.Status, as: Status
+      iex> Status.ok(:computer)
       {:ok, :computer}
-      iex> with error(reason) <- {:ok, :computer}, do: raise reason
+      iex> with Status.error(reason) <- {:ok, :computer}, do: raise reason
       {:ok, :computer}
 
   See `Tagged.Constructor` for further details.
 
   ### Type definitions
-
-      _iex> use Tagged.Status
       _iex> t Tagged.Status.error
       @type error() :: {:error, term()}
 
@@ -34,7 +32,8 @@ defmodule Tagged do
 
   ### Pipe selective execution
 
-      iex> use Tagged.Status
+      iex> require Tagged.Status
+      iex> import Tagged.Status, only: [ok: 1, with_ok: 2]
       iex> ok(:computer) |> with_ok(& "OK, #{&1}")
       "OK, computer"
 
@@ -164,6 +163,9 @@ defmodule Tagged do
 
       import unquote(__MODULE__)
 
+      @deprecated """
+      Use `require/2` and `import/2` instead.
+      """
       defmacro __using__(opts) do
         quote do: import(unquote(__MODULE__), unquote(opts))
       end

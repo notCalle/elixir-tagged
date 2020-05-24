@@ -32,7 +32,8 @@ defmodule Tagged.PipeWith do
   This is quite similar to the regular `with ... <- ..., do: ..., else: ...`
   for happy paths:
 
-      iex> use DocTest.PipeWith
+      iex> require DocTest.PipeWith
+      iex> import DocTest.PipeWith
       iex> with success(v) <- validate_input(1),
       ...>      do: next_number(v)
       2
@@ -43,7 +44,8 @@ defmodule Tagged.PipeWith do
   When the path is not a happy path, it offers more fluent control over
   recovery from failures at any point in the pipe:
 
-      iex> use DocTest.PipeWith
+      iex> require DocTest.PipeWith
+      iex> import DocTest.PipeWith
       iex> with success(v) <- validate_input(0.7) do
       ...>   next_number(v)
       ...> else
@@ -78,7 +80,8 @@ defmodule Tagged.PipeWith do
         `#{unquote(tag)}` tagged tuple. When `term` does not match, is is
         returned as-is.
 
-            iex> use #{unquote(module)}
+            iex> require #{unquote(module)}
+            iex> import #{unquote(module)}
             iex> {:#{unquote(tag)}, :match} |> with_#{unquote(name)}(& &1)
             :match
             iex> {:not_#{unquote(tag)}, :match} |> with_#{unquote(name)}(& &1)

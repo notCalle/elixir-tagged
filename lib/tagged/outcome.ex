@@ -2,7 +2,8 @@ defmodule Tagged.Outcome do
   @moduledoc ~S"""
   Reasoning in terms of the outcome of an action.
 
-      iex> use Tagged.Outcome
+      iex> require Tagged.Outcome
+      iex> import Tagged.Outcome, only: [failure: 1, success: 1]
       iex> failure(:is_human)
       {:error, :is_human}
       iex> with success(it) <- {:ok, "Computer"}, do: "OK, #{it}!"

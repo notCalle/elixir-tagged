@@ -32,7 +32,8 @@ defmodule Tagged.Guard do
         @doc """
         Guard macro for testing if `term` is a `#{unquote(tag)}` tagged tuple.
 
-            iex> use #{unquote(module)}
+            iex> require #{unquote(module)}
+            iex> import #{unquote(module)}
             iex> f = fn x when is_#{unquote(name)}(x) -> x; _ -> nil end
             iex> {:#{unquote(tag)}, true} |> f.()
             {:#{unquote(tag)}, true}
