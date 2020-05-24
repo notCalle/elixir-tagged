@@ -56,15 +56,19 @@ defmodule Tagged do
 
   - `as: name`
 
-    Override default macro name. See `Tagged.Constructor`
+    Override default macro name. See `Tagged.Constructor`.
+
+  - `of: typedef`
+
+    Declare the wrapped type statically, making it opaque. See `Tagged.Typedef`.
 
   - `type: false`
 
-    Override generation of type definition. See `Tagged.Typedef`
+    Override generation of type definition. See `Tagged.Typedef`.
 
   - `pipe_with: false`
 
-    Override generation of pipe filter. See `Tagged.PipeWith`
+    Override generation of pipe filter. See `Tagged.PipeWith`.
 
   """
   @doc since: "0.1.0"
@@ -89,6 +93,7 @@ defmodule Tagged do
 
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
+    of: [optional: true, type: {:tuple, {:atom, :list, :any}}],
     guard: [optional: true, type: :boolean],
     type: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
