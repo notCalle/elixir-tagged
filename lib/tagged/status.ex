@@ -14,6 +14,6 @@ defmodule Tagged.Status do
 
   use Tagged
 
-  deftagged ok
-  deftagged error
+  deftagged ok(value :: term())
+  deftagged error(reason :: term())
 end

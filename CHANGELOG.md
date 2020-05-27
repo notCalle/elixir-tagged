@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for different arities, forming Sum Arithmetic Data Types.
+
+### Changed
+
+- Total rework of how to specify wrapped types.
+- All types are fully statically defined.
+- Reverted the `opaque` type generation.
+
 ### Fixed
 
 - The type requirement on the `of:` keyword was too strict, breaking
