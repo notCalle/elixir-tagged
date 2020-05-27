@@ -69,12 +69,11 @@ defmodule Tagged.PipeWith do
 
   @doc false
   def __deftagged__(params) do
-    with true <- Keyword.get(params, :pipe_with, true) do
-      module = Keyword.get(params, :module)
-      arity = Keyword.get(params, :arity)
-      name = Keyword.get(params, :name)
-      tag = Keyword.get(params, :tag)
-
+    with true <- Keyword.get(params, :pipe_with, true),
+         module = Keyword.get(params, :module),
+         arity = Keyword.get(params, :arity),
+         name = Keyword.get(params, :name),
+         tag = Keyword.get(params, :tag) do
       gen_pipe_with(tag, module, name, arity)
     else
       _ -> []

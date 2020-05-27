@@ -23,12 +23,11 @@ defmodule Tagged.Guard do
 
   @doc false
   def __deftagged__(params) do
-    with true <- Keyword.get(params, :guard, true) do
-      module = Keyword.get(params, :module)
-      arity = Keyword.get(params, :arity)
-      name = Keyword.get(params, :name)
-      tag = Keyword.get(params, :tag)
-
+    with true <- Keyword.get(params, :guard, true),
+         module = Keyword.get(params, :module),
+         arity = Keyword.get(params, :arity),
+         name = Keyword.get(params, :name),
+         tag = Keyword.get(params, :tag) do
       gen_guard(tag, module, name, arity)
     else
       _ -> []
