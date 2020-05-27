@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Total rework of how to specify wrapped types.
 - All types are fully statically defined.
 - Reverted the `opaque` type generation.
+- Deprecate the use of the examples `Tagged.Status` and `Tagged.Outcome`.
 
 ### Fixed
 
