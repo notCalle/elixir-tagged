@@ -1,6 +1,20 @@
 defmodule DocTest do
   use ExUnit.Case
 
+  defmodule Outcome do
+    use Tagged
+
+    deftagged ok, as: success(value :: term())
+    deftagged error, as: failure(reason :: term())
+  end
+
+  defmodule Status do
+    use Tagged
+
+    deftagged ok(value :: term())
+    deftagged error(reason :: term())
+  end
+
   doctest Tagged
   doctest Tagged.Constructor
   doctest Tagged.Guard
@@ -13,10 +27,10 @@ defmodule DocTest do
 
     @type reason :: not_an_integer() | not_a_number()
 
-    deftagged success
-    deftagged failure
+    deftagged success(integer())
+    deftagged failure(reason())
 
-    @type result :: success(integer()) | failure(reason())
+    @type result :: success() | failure()
 
     def validate_input(x) when is_integer(x), do: success(x)
     def validate_input(x), do: failure(not_an_integer(x))

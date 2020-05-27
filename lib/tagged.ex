@@ -5,16 +5,16 @@ defmodule Tagged do
 
   ## Examples
 
-      defmodule Tagged.Status
+      defmodule Status
         use Tagged
 
-        deftagged ok
-        deftagged error
+        deftagged ok(term())
+        deftagged error(term())
       end
 
   ### Construct and Destructure
 
-      iex> require Tagged.Status, as: Status
+      iex> require Status
       iex> Status.ok(:computer)
       {:ok, :computer}
       iex> with Status.error(reason) <- {:ok, :computer}, do: raise reason
@@ -23,7 +23,7 @@ defmodule Tagged do
   See `Tagged.Constructor` for further details.
 
   ### Type definitions
-      _iex> t Tagged.Status.error
+      _iex> t Status.error
       @type error() :: {:error, term()}
 
       Tagged value tuple, containing term().
@@ -32,8 +32,8 @@ defmodule Tagged do
 
   ### Pipe selective execution
 
-      iex> require Tagged.Status
-      iex> import Tagged.Status, only: [ok: 1, with_ok: 2]
+      iex> require Status
+      iex> import Status, only: [ok: 1, with_ok: 2]
       iex> ok(:computer) |> with_ok(& "OK, #{&1}")
       "OK, computer"
 
@@ -72,8 +72,16 @@ defmodule Tagged do
   """
   @doc since: "0.1.0"
   defmacro deftagged(tag, opts \\ []) do
+    module = __CALLER__.module
+
     block =
-      get_params(tag, Macro.expand_once(opts, __CALLER__), __CALLER__.module)
+      (Macro.expand_once(opts, __CALLER__) ++
+         Module.get_attribute(module, :tagged__using__opts, []))
+      |> validate_opts()
+      |> (fn opts -> [module: module] ++ opts end).()
+      |> parse_tag(tag)
+      |> parse_name()
+      |> parse_args()
       |> generate_parts()
 
     quote do: (unquote_splicing(block))
@@ -84,11 +92,10 @@ defmodule Tagged do
   ##  Public API ends here, internal helper functions follows
   ##
   ##############################################################################
-
   @typep block :: [Macro.t()]
-  @typep macro? :: Macro.t() | false | nil
+  @typep code :: block() | Macro.t()
   @typep accumulator :: {block(), Keyword.t()}
-  @typep macro_gen :: (Keyword.t() -> macro?())
+  @typep macro_gen :: (Keyword.t() -> code())
 
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
@@ -97,18 +104,35 @@ defmodule Tagged do
     type: [optional: true, type: :boolean],
     pipe_with: [optional: true, type: :boolean]
   }
+  @doc false
+  @spec validate_opts(Keyword.t()) :: Keyword.t()
+  defp validate_opts(opts), do: validate!(opts, @opts_schema)
 
   @doc false
-  @spec get_params(Macro.t(), Keyword.t(), module()) :: Keyword.t()
-  defp get_params(tag, opts, module) do
-    opts = validate!(opts, @opts_schema)
-    name = Keyword.get(opts, :as, tag)
+  @spec parse_tag(Keyword.t(), Macro.t()) :: Keyword.t()
+  defp parse_tag(opts, {tag, _, args}) do
+    [tag: tag, args: args] ++ opts
+  end
 
-    [
-      name: name |> Macro.to_string() |> String.to_atom(),
-      tag: tag |> Macro.to_string() |> String.to_atom(),
-      module: module
-    ] ++ opts ++ Module.get_attribute(module, :tagged__using__opts, [])
+  @doc false
+  @spec parse_name(Keyword.t()) :: Keyword.t()
+  defp parse_name(opts) do
+    with tag = Keyword.get(opts, :tag),
+         {name, _, args} <- Keyword.get(opts, :as, name: tag) do
+      [name: name, args: args]
+    end ++ opts
+  end
+
+  @doc false
+  @spec parse_args(Keyword.t()) :: Keyword.t()
+  defp parse_args(opts) do
+    case Keyword.get(opts, :args) do
+      args when is_list(args) ->
+        [args: args, arity: length(args)] ++ opts
+
+      _ ->
+        [args: {:term, [], []}, arity: 1] ++ opts
+    end
   end
 
   @doc false
@@ -117,16 +141,19 @@ defmodule Tagged do
 
   @doc false
   @spec finish(accumulator()) :: block()
-  defp finish({acc, _}), do: acc |> Enum.reverse()
+  defp finish({acc, _}), do: acc
 
   @doc false
-  @spec accumulate(accumulator(), macro?()) :: accumulator()
-  defp accumulate(acc, result) when result in [nil, false], do: acc
-  defp accumulate({acc, params}, result), do: {[result | acc], params}
+  @spec accumulate(block(), accumulator()) :: accumulator()
+  defp accumulate(result, {acc, params}), do: {acc ++ result, params}
 
   @doc false
   @spec pipe(accumulator(), macro_gen()) :: accumulator()
-  defp pipe({_, params} = acc, f), do: accumulate(acc, f.(params))
+  defp pipe({_, params} = acc, f) do
+    f.(params)
+    |> List.wrap()
+    |> accumulate(acc)
+  end
 
   @doc false
   @spec generate_parts(Keyword.t()) :: Macro.t()
