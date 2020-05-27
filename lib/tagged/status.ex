@@ -13,7 +13,8 @@ defmodule Tagged.Status do
   @moduledoc since: "0.1.0"
 
   use Tagged
-
-  deftagged ok
-  deftagged error
+  @deprecated "Define your own module, with the proper type constraints."
+  deftagged ok(value :: term())
+  @deprecated "Define your own module, with the proper type constraints."
+  deftagged error(reason :: term())
 end

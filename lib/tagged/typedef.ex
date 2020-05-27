@@ -38,21 +38,9 @@ defmodule Tagged.Typedef do
         _iex> t bar
         @type bar() :: bar(term())
 
-        @opaque bar(t)
+        @type bar(t) :: {:bar, t}
 
         Tagged value tuple with a wrapped type t() \\ term()
-
-  - Make the wrapped type static opaque
-
-        defmodule DocTest.OpaqueType do
-          use Tagged
-
-          deftagged foo, of: integer()
-        end
-
-        _iex> use DocTest.OpaqueType
-        _iex> t foo
-        @opaque foo()
 
   """
   @moduledoc since: "0.1.0"
@@ -70,30 +58,42 @@ defmodule Tagged.Typedef do
   def __deftagged__(params) do
     with true <- Keyword.get(params, :type, true),
          name = Keyword.get(params, :name),
+         args = Keyword.get(params, :args),
          tag = Keyword.get(params, :tag),
-         of_type = Keyword.get(params, :of, false) do
-      gen_typedef(name, tag, of_type)
+         of_type = Keyword.get(params, :of, args) do
+      gen_typedef(name, tag, List.wrap(of_type))
+    else
+      _ -> []
     end
   end
 
   @doc false
-  @spec gen_typedef(atom(), atom(), macro?()) :: Macro.t()
-  def gen_typedef(name, tag, false) do
-    quote do
-      @typedoc ~S"""
-      Tagged value tuple with a wrapped type `t` \\\\ `term()`
-      """
-      @opaque unquote(name)(t) :: {unquote(tag), value :: t}
-      @type unquote(name)() :: unquote(name)(term())
-    end
-  end
-
+  @spec gen_typedef(atom(), atom(), Macro.t()) :: Macro.t()
   def gen_typedef(name, tag, of_type) do
+    #
+    # FIXME: Generate proper arity type declarations when a type argument is
+    # `_`, to allow for parameterized type usage (as we did before).
+    #
+    # E.g.
+    #     deftagged ok(_)
+    #     => @type ok(t1) :: {:ok, t1}
+    #        @type ok() :: ok(term())
+    #
+    # FIXME: Multiple arity definitions of the same name will cause
+    # redefinitions of @type t/0 and must instead accumulate and declare the sum
+    # type in a __before_compile__ hook.
+    #
+    # E.g.
+    #     deftagged error(term())
+    #     => @type error() :: {:error, term()}
+    #     deftagged error()
+    #     => ** (CompileError) ... type error/0 is already defined
+    #
     quote do
       @typedoc ~S"""
       Tagged value tuple with a wrapped type `t` \\\\ `term()`
       """
-      @opaque unquote(name)() :: {unquote(tag), unquote(of_type)}
+      @type unquote(name)() :: {unquote(tag), unquote_splicing(of_type)}
     end
   end
 end

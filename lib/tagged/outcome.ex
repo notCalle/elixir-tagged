@@ -14,6 +14,8 @@ defmodule Tagged.Outcome do
 
   use Tagged
 
-  deftagged ok, as: success
-  deftagged error, as: failure
+  @deprecated "Define your own module, with the proper type constraints."
+  deftagged ok, as: success(result :: term())
+  @deprecated "Define your own module, with the proper type constraints."
+  deftagged error, as: failure(reason :: term())
 end

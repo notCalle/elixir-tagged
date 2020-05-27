@@ -13,8 +13,8 @@ defmodule Tagged.Constructor do
         defmodule Tagged.Status
           use Tagged
 
-          deftagged ok
-          deftagged error
+          deftagged ok(term())
+          deftagged error(term())
         end
 
         iex> require Tagged.Status
@@ -29,8 +29,8 @@ defmodule Tagged.Constructor do
         defmodule Tagged.Outcome
           use Tagged
 
-          deftagged ok, as: success
-          deftagged error, as: failure
+          deftagged ok, as: success(term())
+          deftagged error, as: failure(term())
         end
 
         iex> require Tagged.Outcome
@@ -51,25 +51,58 @@ defmodule Tagged.Constructor do
   @doc false
   @spec __deftagged__(Keyword.t()) :: Macro.t()
   def __deftagged__(params) do
-    name = Keyword.get(params, :name)
     tag = Keyword.get(params, :tag)
     module = Keyword.get(params, :module)
+    name = Keyword.get(params, :name)
+    arity = Keyword.get(params, :arity)
 
+    gen_constructor(tag, module, name, arity)
+  end
+
+  defp gen_constructor(tag, module, name, 0) do
     quote do
       @doc """
-      Constructor for `#{unquote(tag)}` tagged value tuples. Can also be used
-      to destructure tuples.
+      Constructor `#{unquote(name)}/0` for `#{unquote(tag)}` tags.
 
           iex> require #{unquote(module)}
           iex> import #{unquote(module)}
-          iex> with #{unquote(name)}(val) <- {:#{unquote(tag)}, :match}, do: val
-          :match
-          iex> with #{unquote(name)}(_) <- {:not_#{unquote(tag)}, :match}, do: true
-          {:not_#{unquote(tag)}, :match}
+          iex> with #{unquote(name)}() <- :#{unquote(tag)}, do: true
+          true
+          iex> with #{unquote(name)}() <- :not_#{unquote(tag)}, do: true
+          :not_#{unquote(tag)}
 
       """
-      defmacro unquote(name)(value) do
-        {unquote(tag), value}
+      defmacro unquote(name)(), do: unquote(tag)
+    end
+  end
+
+  defp gen_constructor(tag, module, name, arity) do
+    cons_args = Macro.generate_arguments(arity, nil)
+    ex_match = for(_ <- 1..arity, do: "_") |> Enum.join(", ")
+    ex_vals = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
+
+    ex_match = "#{name}(#{ex_match})"
+    ex_hit = "{:#{tag}, #{ex_vals}}"
+    ex_miss = "{:not_#{tag}, #{ex_vals}}"
+
+    quote do
+      @doc """
+      Constructor `#{unquote(name)}/#{unquote(arity)}` for `#{unquote(tag)}`
+      tagged value tuples. Can also be used to destructure tuples.
+
+          iex> require #{unquote(module)}
+          iex> import #{unquote(module)}
+          iex> with #{unquote(ex_match)} <- #{unquote(ex_hit)}, do: true
+          true
+          iex> with #{unquote(ex_match)} <- #{unquote(ex_miss)}, do: true
+          #{unquote(ex_miss)}
+
+      """
+      defmacro unquote(name)(unquote_splicing(cons_args)) do
+        args = [unquote_splicing(cons_args)]
+        tag = unquote(tag)
+
+        quote do: {unquote(tag), unquote_splicing(args)}
       end
     end
   end

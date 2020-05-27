@@ -7,18 +7,18 @@ defmodule Tagged.PipeWith do
 
   Given a module that defines a `success() | failure()` type:
 
-      defmodule DocTest.PipeWith do
+      defmodule PipeWith do
         use Tagged
 
-        deftagged not_an_integer
-        deftagged not_a_number
+        deftagged not_an_integer(term())
+        deftagged not_a_number(term())
 
-        @type reason :: not_an_integer() | not_a_number()
+        @type reason() :: not_an_integer() | not_a_number()
 
-        deftagged success
-        deftagged failure
+        deftagged success(integer())
+        deftagged failure(reason())
 
-        @type result :: success(integer()) | failure(reason())
+        @type result() :: success() | failure()
 
         def validate_input(x) when is_integer(x), do: success(x)
         def validate_input(x), do: failure(not_an_integer(x))
@@ -32,8 +32,8 @@ defmodule Tagged.PipeWith do
   This is quite similar to the regular `with ... <- ..., do: ..., else: ...`
   for happy paths:
 
-      iex> require DocTest.PipeWith
-      iex> import DocTest.PipeWith
+      iex> require PipeWith
+      iex> import PipeWith
       iex> with success(v) <- validate_input(1),
       ...>      do: next_number(v)
       2
@@ -44,8 +44,8 @@ defmodule Tagged.PipeWith do
   When the path is not a happy path, it offers more fluent control over
   recovery from failures at any point in the pipe:
 
-      iex> require DocTest.PipeWith
-      iex> import DocTest.PipeWith
+      iex> require PipeWith
+      iex> import PipeWith
       iex> with success(v) <- validate_input(0.7) do
       ...>   next_number(v)
       ...> else
@@ -69,32 +69,72 @@ defmodule Tagged.PipeWith do
 
   @doc false
   def __deftagged__(params) do
-    with true <- Keyword.get(params, :pipe_with, true) do
-      module = Keyword.get(params, :module)
-      name = Keyword.get(params, :name)
-      tag = Keyword.get(params, :tag)
+    with true <- Keyword.get(params, :pipe_with, true),
+         module = Keyword.get(params, :module),
+         arity = Keyword.get(params, :arity),
+         name = Keyword.get(params, :name),
+         tag = Keyword.get(params, :tag) do
+      gen_pipe_with(tag, module, name, arity)
+    else
+      _ -> []
+    end
+  end
 
-      quote do
-        @doc """
-        Calls `f/1` with the wrapped value, when `term` matches a
-        `#{unquote(tag)}` tagged tuple. When `term` does not match, is is
-        returned as-is.
+  def gen_pipe_with(tag, module, name, 0) do
+    quote do
+      @doc """
+      Calls `f/0`, when `term` matches `#{unquote(tag)}`
+      When `term` does not match, is is returned as-is.
 
-            iex> require #{unquote(module)}
-            iex> import #{unquote(module)}
-            iex> {:#{unquote(tag)}, :match} |> with_#{unquote(name)}(& &1)
-            :match
-            iex> {:not_#{unquote(tag)}, :match} |> with_#{unquote(name)}(& &1)
-            {:not_#{unquote(tag)}, :match}
+          iex> require #{unquote(module)}
+          iex> import #{unquote(module)}
+          iex> #{unquote(tag)}
+          ...> |> with_#{unquote(name)}(& :match)
+          :match
+          iex> :not_#{unquote(tag)}
+          ...> |> with_#{unquote(name)}(& :match)
+          :not_#{unquote(tag)}
 
-        """
-        defmacro unquote(:"with_#{name}")(term, f) do
-          name = unquote(name)
-          tag = unquote(tag)
+      """
+      defmacro unquote(:"with_#{name}")(term, f) do
+        name = unquote(name)
 
-          quote do
-            with unquote(name)(value) <- unquote(term), do: unquote(f).(value)
-          end
+        quote do
+          with unquote(name)() <- unquote(term),
+               do: unquote(f).()
+        end
+      end
+    end
+  end
+
+  def gen_pipe_with(tag, module, name, arity) do
+    match = for(_ <- 1..arity, do: "_") |> Enum.join(", ")
+    vals = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
+
+    ex_hit = "{:#{tag}, #{vals}}"
+
+    quote do
+      @doc """
+      Calls `f/#{unquote(arity)}` with the wrapped value, when `term` matches a
+      `#{unquote(tag)}` tagged tuple. When `term` does not match, is is
+      returned as-is.
+
+          iex> require #{unquote(module)}
+          iex> import #{unquote(module)}
+          iex> #{unquote(ex_hit)}
+          ...> |> with_#{unquote(name)}(fn #{unquote(match)} -> :match end)
+          :match
+          iex> {:not_#{unquote(tag)}, :miss} |> with_#{unquote(name)}(& &1)
+          {:not_#{unquote(tag)}, :miss}
+
+      """
+      defmacro unquote(:"with_#{name}")(term, f) do
+        name = unquote(name)
+        args = Macro.generate_arguments(unquote(arity), nil)
+
+        quote do
+          with unquote(name)(unquote_splicing(args)) <- unquote(term),
+               do: unquote(f).(unquote_splicing(args))
         end
       end
     end

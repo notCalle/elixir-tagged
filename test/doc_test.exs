@@ -1,6 +1,37 @@
 defmodule DocTest do
   use ExUnit.Case
 
+  defmodule Outcome do
+    use Tagged
+
+    deftagged ok, as: success(value :: term())
+    deftagged error, as: failure(reason :: term())
+  end
+
+  defmodule Status do
+    use Tagged
+
+    deftagged ok(value :: term())
+    deftagged error(reason :: term())
+  end
+
+  defmodule BinTree do
+    use Tagged
+
+    deftagged tree(left :: t(), right :: t())
+    deftagged leaf(value :: term())
+    deftagged nil, as: empty()
+
+    @type t() :: tree() | leaf() | empty()
+
+    defguard is_t(x) when is_tree(x) or is_leaf(x) or is_empty(x)
+
+    @spec leaves(t()) :: [term()]
+    def leaves(empty()), do: []
+    def leaves(leaf(v)), do: [v]
+    def leaves(tree(l, r)), do: leaves(l) ++ leaves(r)
+  end
+
   doctest Tagged
   doctest Tagged.Constructor
   doctest Tagged.Guard
@@ -13,10 +44,10 @@ defmodule DocTest do
 
     @type reason :: not_an_integer() | not_a_number()
 
-    deftagged success
-    deftagged failure
+    deftagged success(integer())
+    deftagged failure(reason())
 
-    @type result :: success(integer()) | failure(reason())
+    @type result :: success() | failure()
 
     def validate_input(x) when is_integer(x), do: success(x)
     def validate_input(x), do: failure(not_an_integer(x))
@@ -40,6 +71,12 @@ defmodule DocTest do
 
     deftagged foo, type: false
     deftagged bar
+  end
+
+  defmodule DocTest.OpaqueType do
+    use Tagged
+
+    deftagged foo, of: Pid.t()
   end
 
   doctest Tagged.Typedef

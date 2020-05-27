@@ -48,6 +48,34 @@ iex> ok(:computer) |> with_ok(& "OK, #{&1}")
 "OK, computer"
 ```
 
+### Sum Algebraic Data Types
+
+A module that defines some tagged values, a composit type, and guard of those,
+forms a Sum Algebraic Data Type, also known as a Tagged Union.
+
+```elixir
+defmodule BinTree do
+  use Tagged
+
+  deftagged tree(left :: t(), right :: t())
+  deftagged leaf(value :: term())
+  deftagged nil, as: empty()
+
+  @type t() :: tree() | leaf() | empty()
+
+  defguard is_t(x) when is_tree(x) or is_leaf(x) or is_empty(x)
+end
+
+iex> require BinTree
+iex> import BinTree
+iex> t = tree(leaf(1),
+...>          tree(leaf(2),
+...>               empty()))
+{:tree, {:leaf, 1}, {:tree, {:leaf, 2}, nil}}
+iex> is_t(t)
+true
+```
+
 ## Installation
 
 The package can be installed by adding `tagged` to your list of dependencies
