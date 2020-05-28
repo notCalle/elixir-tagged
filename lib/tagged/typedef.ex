@@ -90,9 +90,6 @@ defmodule Tagged.Typedef do
     #     => ** (CompileError) ... type error/0 is already defined
     #
     quote do
-      @typedoc ~S"""
-      Tagged value tuple with a wrapped type `t` \\\\ `term()`
-      """
       @type unquote(name)() :: {unquote(tag), unquote_splicing(of_type)}
     end
   end
