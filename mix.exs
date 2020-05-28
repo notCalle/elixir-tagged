@@ -30,6 +30,7 @@ defmodule Tagged.MixProject do
       description: @description,
       docs: @docs,
       elixir: "~> 1.9",
+      elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       preferred_cli_env: [
         coveralls: :test,
@@ -50,6 +51,9 @@ defmodule Tagged.MixProject do
       # extra_applications: [:logger]
     ]
   end
+
+  def elixirc_paths(:test), do: ["lib", "test/lib"]
+  def elixirc_paths(_), do: ["lib"]
 
   defp package do
     [

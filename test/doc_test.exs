@@ -82,4 +82,6 @@ defmodule DocTest do
   doctest Tagged.Typedef
   doctest Tagged.Outcome
   doctest Tagged.Status
+
+  doctest ReadmeDoc
 end
