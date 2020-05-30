@@ -88,11 +88,11 @@ defmodule Tagged.PipeWith do
 
           iex> require #{unquote(module)}
           iex> import #{unquote(module)}
-          iex> #{unquote(tag)}
-          ...> |> with_#{unquote(name)}(& :match)
+          iex> :#{unquote(tag)}
+          ...> |> with_#{unquote(name)}(fn -> :match end)
           :match
           iex> :not_#{unquote(tag)}
-          ...> |> with_#{unquote(name)}(& :match)
+          ...> |> with_#{unquote(name)}(fn -> :match end)
           :not_#{unquote(tag)}
 
       """
