@@ -69,6 +69,12 @@ defmodule Tagged.Typedef do
 
   @doc false
   @spec gen_typedef(atom(), atom(), Macro.t()) :: Macro.t()
+  def gen_typedef(name, tag, []) do
+    quote do
+      @type unquote(name)() :: unquote(tag)
+    end
+  end
+
   def gen_typedef(name, tag, of_type) do
     #
     # FIXME: Generate proper arity type declarations when a type argument is
