@@ -71,52 +71,51 @@ defmodule Tagged.PipeWith do
   def __deftagged__(params) do
     with true <- Keyword.get(params, :pipe_with, true),
          module = Keyword.get(params, :module),
+         ex_tag = Keyword.get(params, :ex_tag),
          arity = Keyword.get(params, :arity),
-         name = Keyword.get(params, :name),
-         tag = Keyword.get(params, :tag) do
-      gen_pipe_with(tag, module, name, arity)
+         name = Keyword.get(params, :name) do
+      gen_pipe_with(module, name, arity, ex_tag)
     else
       _ -> []
     end
   end
 
-  def gen_pipe_with(tag, module, name, 0) do
+  def gen_pipe_with(module, name, 0, ex_tag) do
     quote do
       @doc """
-      Calls `f/0`, when `term` matches `#{unquote(tag)}`
+      Calls `f/0`, when `term` matches `#{unquote(ex_tag)}`
       When `term` does not match, is is returned as-is.
 
           iex> require #{unquote(module)}
           iex> import #{unquote(module)}
-          iex> #{unquote(tag)}
-          ...> |> with_#{unquote(name)}(& :match)
+          iex> :#{unquote(ex_tag)}
+          ...> |> with_#{unquote(name)}(fn -> :match end)
           :match
-          iex> :not_#{unquote(tag)}
-          ...> |> with_#{unquote(name)}(& :match)
-          :not_#{unquote(tag)}
+          iex> :not_#{unquote(ex_tag)}
+          ...> |> with_#{unquote(name)}(fn -> :match end)
+          :not_#{unquote(ex_tag)}
 
       """
       defmacro unquote(:"with_#{name}")(term, f) do
         name = unquote(name)
 
         quote do
-          with unquote(name)() <- unquote(term),
-               do: unquote(f).()
+          with unquote(name)() <- unquote(term), do: unquote(f).()
         end
       end
     end
   end
 
-  def gen_pipe_with(tag, module, name, arity) do
+  def gen_pipe_with(module, name, arity, ex_tag) do
     match = for(_ <- 1..arity, do: "_") |> Enum.join(", ")
     vals = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
 
-    ex_hit = "{:#{tag}, #{vals}}"
+    ex_hit = "{:#{ex_tag}, #{vals}}"
 
     quote do
       @doc """
       Calls `f/#{unquote(arity)}` with the wrapped value, when `term` matches a
-      `#{unquote(tag)}` tagged tuple. When `term` does not match, is is
+      `#{unquote(ex_tag)}` tagged tuple. When `term` does not match, is is
       returned as-is.
 
           iex> require #{unquote(module)}
@@ -124,8 +123,8 @@ defmodule Tagged.PipeWith do
           iex> #{unquote(ex_hit)}
           ...> |> with_#{unquote(name)}(fn #{unquote(match)} -> :match end)
           :match
-          iex> {:not_#{unquote(tag)}, :miss} |> with_#{unquote(name)}(& &1)
-          {:not_#{unquote(tag)}, :miss}
+          iex> {:not_#{unquote(ex_tag)}, :miss} |> with_#{unquote(name)}(& &1)
+          {:not_#{unquote(ex_tag)}, :miss}
 
       """
       defmacro unquote(:"with_#{name}")(term, f) do

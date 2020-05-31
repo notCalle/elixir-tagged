@@ -160,12 +160,17 @@ defmodule Tagged do
   defp validate_opts(opts), do: validate!(opts, @opts_schema)
 
   @doc false
-  @spec parse_tag(Keyword.t(), Macro.t()) :: Keyword.t()
-  defp parse_tag(opts, {tag, _, args}) do
-    [tag: tag, args: args] ++ opts
-  end
+  @spec tag_to_s(atom()) :: String.t()
+  defp tag_to_s(nil), do: "nil"
+  defp tag_to_s(tag) when is_atom(tag), do: "#{tag}"
 
-  defp parse_tag(opts, tag) when is_atom(tag), do: [tag: tag] ++ opts
+  @doc false
+  @spec parse_tag(Keyword.t(), Macro.t()) :: Keyword.t()
+  defp parse_tag(opts, {tag, _, args}),
+    do: [tag: tag, ex_tag: tag_to_s(tag), args: args] ++ opts
+
+  defp parse_tag(opts, tag) when is_atom(tag),
+    do: [tag: tag, ex_tag: tag_to_s(tag)] ++ opts
 
   @doc false
   @spec parse_name(Keyword.t()) :: Keyword.t()

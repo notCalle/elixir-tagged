@@ -12,40 +12,44 @@ such as the ubiquitous `{:ok, value}` and `{:error, reason}`.
 ## Examples
 
 ```elixir
-defmodule Tagged.Status
+defmodule Status
   use Tagged
 
-  deftagged ok
-  deftagged error
+  deftagged ok(value :: term())
+  deftagged error(reason :: term())
 end
 ```
 
 ### Construct and Destructure
 
 ```elixir
-iex> use Tagged.Status
+iex> require Status
+iex> import Status
 iex> ok(:computer)
 {:ok, :computer}
 iex> with error(reason) <- {:ok, :computer}, do: raise reason
 {:ok, :computer}
+iex> with error(reason) <- {:error, "OH NO!"}, do: raise reason
+** (RuntimeError) OH NO!
 ```
 
 ### Type definitions
 
 ```elixir
-_iex> use Tagged.Status
-_iex> t Tagged.Status.error
-@type error() :: {:error, term()}
-
-Tagged value tuple, containing term().
+_iex> require Status
+_iex> t Status.error
+@type error() :: {:error, reason :: term()}
 ```
 
 ### Selective execution with unwrapped value
 
 ```elixir
-iex> use Tagged.Status
+iex> require Status
+iex> import Status
 iex> ok(:computer) |> with_ok(& "OK, #{&1}")
 "OK, computer"
+iex> error("OH NO!") |> with_ok(& "OK, #{&1}")
+{:error, "OH NO!"}
 ```
 
 ### Sum Algebraic Data Types

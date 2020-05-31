@@ -52,38 +52,39 @@ defmodule Tagged.Constructor do
   @spec __deftagged__(Keyword.t()) :: Macro.t()
   def __deftagged__(params) do
     tag = Keyword.get(params, :tag)
+    ex_tag = Keyword.get(params, :ex_tag)
     module = Keyword.get(params, :module)
     name = Keyword.get(params, :name)
     arity = Keyword.get(params, :arity)
 
-    gen_constructor(tag, module, name, arity)
+    gen_constructor(tag, module, name, arity, ex_tag)
   end
 
-  defp gen_constructor(tag, module, name, 0) do
+  defp gen_constructor(tag, module, name, 0, ex_tag) do
     quote do
       @doc """
-      Constructor `#{unquote(name)}/0` for `#{unquote(tag)}` tags.
+      Constructor `#{unquote(name)}/0` for `#{unquote(ex_tag)}` tags.
 
           iex> require #{unquote(module)}
           iex> import #{unquote(module)}
-          iex> with #{unquote(name)}() <- :#{unquote(tag)}, do: true
+          iex> with #{unquote(name)}() <- :#{unquote(ex_tag)}, do: true
           true
-          iex> with #{unquote(name)}() <- :not_#{unquote(tag)}, do: true
-          :not_#{unquote(tag)}
+          iex> with #{unquote(name)}() <- :not_#{unquote(ex_tag)}, do: true
+          :not_#{unquote(ex_tag)}
 
       """
       defmacro unquote(name)(), do: unquote(tag)
     end
   end
 
-  defp gen_constructor(tag, module, name, arity) do
+  defp gen_constructor(tag, module, name, arity, ex_tag) do
     cons_args = Macro.generate_arguments(arity, nil)
     ex_match = for(_ <- 1..arity, do: "_") |> Enum.join(", ")
     ex_vals = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
 
     ex_match = "#{name}(#{ex_match})"
-    ex_hit = "{:#{tag}, #{ex_vals}}"
-    ex_miss = "{:not_#{tag}, #{ex_vals}}"
+    ex_hit = "{:#{ex_tag}, #{ex_vals}}"
+    ex_miss = "{:not_#{ex_tag}, #{ex_vals}}"
 
     quote do
       @doc """

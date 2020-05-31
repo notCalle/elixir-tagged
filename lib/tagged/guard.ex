@@ -25,27 +25,29 @@ defmodule Tagged.Guard do
   def __deftagged__(params) do
     with true <- Keyword.get(params, :guard, true),
          module = Keyword.get(params, :module),
+         ex_tag = Keyword.get(params, :ex_tag),
          arity = Keyword.get(params, :arity),
          name = Keyword.get(params, :name),
          tag = Keyword.get(params, :tag) do
-      gen_guard(tag, module, name, arity)
+      gen_guard(tag, module, name, arity, ex_tag)
     else
       _ -> []
     end
   end
 
-  defp gen_guard(tag, module, name, 0) do
+  defp gen_guard(tag, module, name, 0, ex_tag) do
     quote do
+      @file unquote(__ENV__.file)
       @doc """
-      Guard macro for testing if `term` is a `#{unquote(tag)}` tag, with
+      Guard macro for testing if `term` is a `#{unquote(ex_tag)}` tag, with
       constructor `#{unquote(name)}/0`.
 
           iex> require #{unquote(module)}
           iex> import #{unquote(module)}
           iex> f = fn x when is_#{unquote(name)}(x) -> x; _ -> nil end
-          iex> :#{unquote(tag)} |> f.()
-          :#{unquote(tag)}
-          iex> :not_#{unquote(tag)} |> f.()
+          iex> #{unquote(name)}() |> f.()
+          :#{unquote(ex_tag)}
+          iex> :not_#{unquote(ex_tag)} |> f.()
           nil
 
       """
@@ -54,18 +56,20 @@ defmodule Tagged.Guard do
     end
   end
 
-  defp gen_guard(tag, module, name, arity) do
+  defp gen_guard(tag, module, name, arity, ex_tag) do
+    args = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
+
     quote do
       @doc """
-      Guard macro for testing if `term` is a `#{unquote(tag)}` tagged tuple, with
-      constructor `#{unquote(name)}/#{unquote(arity)}`.
+      Guard macro for testing if `term` is a `#{unquote(ex_tag)}` tagged tuple,
+      with constructor `#{unquote(name)}/#{unquote(arity)}`.
 
           iex> require #{unquote(module)}
           iex> import #{unquote(module)}
           iex> f = fn x when is_#{unquote(name)}(x) -> x; _ -> nil end
-          iex> {:#{unquote(tag)}, true} |> f.()
-          {:#{unquote(tag)}, true}
-          iex> {:not_#{unquote(tag)}, true} |> f.()
+          iex> #{unquote(name)}(#{unquote(args)}) |> f.()
+          {:#{unquote(ex_tag)}, #{unquote(args)}}
+          iex> {:not_#{unquote(ex_tag)}, #{unquote(args)}} |> f.()
           nil
 
       """

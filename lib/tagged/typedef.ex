@@ -69,6 +69,12 @@ defmodule Tagged.Typedef do
 
   @doc false
   @spec gen_typedef(atom(), atom(), Macro.t()) :: Macro.t()
+  def gen_typedef(name, tag, []) do
+    quote do
+      @type unquote(name)() :: unquote(tag)
+    end
+  end
+
   def gen_typedef(name, tag, of_type) do
     #
     # FIXME: Generate proper arity type declarations when a type argument is
@@ -90,9 +96,6 @@ defmodule Tagged.Typedef do
     #     => ** (CompileError) ... type error/0 is already defined
     #
     quote do
-      @typedoc ~S"""
-      Tagged value tuple with a wrapped type `t` \\\\ `term()`
-      """
       @type unquote(name)() :: {unquote(tag), unquote_splicing(of_type)}
     end
   end
