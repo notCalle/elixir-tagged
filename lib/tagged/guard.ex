@@ -22,22 +22,29 @@ defmodule Tagged.Guard do
   ##############################################################################
 
   @doc false
+  @spec __deftagged__(Keyword.t()) :: [Macro.t()]
   def __deftagged__(params) do
     with true <- Keyword.get(params, :guard, true),
          module = Keyword.get(params, :module),
          ex_tag = Keyword.get(params, :ex_tag),
          arity = Keyword.get(params, :arity),
          name = Keyword.get(params, :name),
-         tag = Keyword.get(params, :tag) do
-      gen_guard(tag, module, name, arity, ex_tag)
+         tag = Keyword.get(params, :tag),
+         p? = Keyword.get(params, :__private__) do
+      [
+        gen_doc(ex_tag, module, name, arity, p?),
+        gen_guard(tag, name, arity, p?)
+      ]
     else
       _ -> []
     end
   end
 
-  defp gen_guard(tag, module, name, 0, ex_tag) do
+  @spec gen_doc(String.t(), module(), atom(), integer(), boolean()) :: Macro.t()
+  defp gen_doc(_, _, _, _, true), do: nil
+
+  defp gen_doc(ex_tag, module, name, 0, false) do
     quote do
-      @file unquote(__ENV__.file)
       @doc """
       Guard macro for testing if `term` is a `#{unquote(ex_tag)}` tag, with
       constructor `#{unquote(name)}/0`.
@@ -51,12 +58,10 @@ defmodule Tagged.Guard do
           nil
 
       """
-      defguard unquote(:"is_#{name}")(term)
-               when term == unquote(tag)
     end
   end
 
-  defp gen_guard(tag, module, name, arity, ex_tag) do
+  defp gen_doc(ex_tag, module, name, arity, false) do
     args = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
 
     quote do
@@ -73,9 +78,37 @@ defmodule Tagged.Guard do
           nil
 
       """
+    end
+  end
+
+  @spec gen_guard(atom(), atom(), integer(), boolean()) :: Macro.t()
+  defp gen_guard(tag, name, 0, false) do
+    quote do
+      defguard unquote(:"is_#{name}")(term)
+               when term == unquote(tag)
+    end
+  end
+
+  defp gen_guard(tag, name, 0, true) do
+    quote do
+      defguardp unquote(:"is_#{name}")(term)
+                when term == unquote(tag)
+    end
+  end
+
+  defp gen_guard(tag, name, arity, false) do
+    quote do
       defguard unquote(:"is_#{name}")(term)
                when elem(term, 0) == unquote(tag) and
                       tuple_size(term) == unquote(arity + 1)
+    end
+  end
+
+  defp gen_guard(tag, name, arity, true) do
+    quote do
+      defguardp unquote(:"is_#{name}")(term)
+                when elem(term, 0) == unquote(tag) and
+                       tuple_size(term) == unquote(arity + 1)
     end
   end
 end

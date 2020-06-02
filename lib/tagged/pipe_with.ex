@@ -68,19 +68,27 @@ defmodule Tagged.PipeWith do
   ##############################################################################
 
   @doc false
+  @spec __deftagged__(Keyword.t()) :: [Macro.t()]
   def __deftagged__(params) do
     with true <- Keyword.get(params, :pipe_with, true),
          module = Keyword.get(params, :module),
          ex_tag = Keyword.get(params, :ex_tag),
          arity = Keyword.get(params, :arity),
-         name = Keyword.get(params, :name) do
-      gen_pipe_with(module, name, arity, ex_tag)
+         name = Keyword.get(params, :name),
+         p? = Keyword.get(params, :__private__) do
+      [
+        gen_doc(module, name, arity, ex_tag, p?),
+        gen_pipe_with(name, arity, p?)
+      ]
     else
       _ -> []
     end
   end
 
-  def gen_pipe_with(module, name, 0, ex_tag) do
+  @spec gen_doc(module(), atom(), integer(), String.t(), boolean()) :: Macro.t()
+  defp gen_doc(_, _, _, _, true), do: nil
+
+  defp gen_doc(module, name, 0, ex_tag, false) do
     quote do
       @doc """
       Calls `f/0`, when `term` matches `#{unquote(ex_tag)}`
@@ -96,17 +104,10 @@ defmodule Tagged.PipeWith do
           :not_#{unquote(ex_tag)}
 
       """
-      defmacro unquote(:"with_#{name}")(term, f) do
-        name = unquote(name)
-
-        quote do
-          with unquote(name)() <- unquote(term), do: unquote(f).()
-        end
-      end
     end
   end
 
-  def gen_pipe_with(module, name, arity, ex_tag) do
+  defp gen_doc(module, name, arity, ex_tag, false) do
     match = for(_ <- 1..arity, do: "_") |> Enum.join(", ")
     vals = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
 
@@ -127,7 +128,51 @@ defmodule Tagged.PipeWith do
           {:not_#{unquote(ex_tag)}, :miss}
 
       """
+    end
+  end
+
+  @spec gen_pipe_with(atom(), integer(), boolean()) :: Macro.t()
+  defp gen_pipe_with(name, 0, false) do
+    quote do
       defmacro unquote(:"with_#{name}")(term, f) do
+        name = unquote(name)
+
+        quote do
+          with unquote(name)() <- unquote(term), do: unquote(f).()
+        end
+      end
+    end
+  end
+
+  defp gen_pipe_with(name, 0, true) do
+    quote do
+      defmacrop unquote(:"with_#{name}")(term, f) do
+        name = unquote(name)
+
+        quote do
+          with unquote(name)() <- unquote(term), do: unquote(f).()
+        end
+      end
+    end
+  end
+
+  defp gen_pipe_with(name, arity, false) do
+    quote do
+      defmacro unquote(:"with_#{name}")(term, f) do
+        name = unquote(name)
+        args = Macro.generate_arguments(unquote(arity), nil)
+
+        quote do
+          with unquote(name)(unquote_splicing(args)) <- unquote(term),
+               do: unquote(f).(unquote_splicing(args))
+        end
+      end
+    end
+  end
+
+  defp gen_pipe_with(name, arity, true) do
+    quote do
+      defmacrop unquote(:"with_#{name}")(term, f) do
         name = unquote(name)
         args = Macro.generate_arguments(unquote(arity), nil)
 
