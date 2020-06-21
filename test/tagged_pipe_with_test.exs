@@ -24,4 +24,10 @@ defmodule TaggedPipeWithTest do
   end
 
   doctest Tagged.PipeWith
+
+  test "does not need to import module" do
+    require PipeWith, as: P
+    assert P.success(1) |> P.with_success(& &1) == 1
+    refute P.failure(1) |> P.with_success(& &1) == 1
+  end
 end
