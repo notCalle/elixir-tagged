@@ -76,14 +76,13 @@ defmodule Tagged do
   """
   @moduledoc since: "0.1.0"
 
-  require __MODULE__.Constructor
-  require __MODULE__.Typedef
   import KeywordValidator, only: [validate!: 2]
 
   @doc ~S"""
-  Generates a macro that definies all things related to a tagged value tuple,
-  `{atom(), term()}`. By default the macro has the same name as the tag, and all
-  the things are generated.
+  Defines a public tagged value tuple.
+
+  By default the tagged tuple has the same name as the tag, and all of
+  constructor, guard, pipe selector, and type are generated.
 
   If `tag` is specified bare, as in `deftagged ok`, the constructor will have an
   arity of `1`, and the type will wrap a `term()`, for backwards compatibility.
@@ -96,7 +95,7 @@ defmodule Tagged do
   When the constructor name is changed with `as:`, the type declaration belongs
   to the name, and not the tag.
 
-      deftagged ok, as success(term())
+      deftagged ok, as: success(term())
 
   ## Keywords
 
@@ -123,19 +122,17 @@ defmodule Tagged do
   """
   @doc since: "0.1.0"
   defmacro deftagged(tag, opts \\ []) do
-    module = __CALLER__.module
+    __deftagged__(tag, [__private__: false] ++ opts, __CALLER__)
+  end
 
-    block =
-      (Macro.expand_once(opts, __CALLER__) ++
-         Module.get_attribute(module, :tagged__using__opts, []))
-      |> validate_opts()
-      |> (fn opts -> [module: module] ++ opts end).()
-      |> parse_tag(tag)
-      |> parse_name()
-      |> parse_args()
-      |> generate_parts()
+  @doc ~S"""
+  Defines a private tagged value tuple.
 
-    quote do: (unquote_splicing(block))
+  See `Tagged.deftagged/2` for further details and examples.
+  """
+  @doc since: "0.5.0"
+  defmacro deftaggedp(tag, opts \\ []) do
+    __deftagged__(tag, [__private__: true] ++ opts, __CALLER__)
   end
 
   ##############################################################################
@@ -148,12 +145,32 @@ defmodule Tagged do
   @typep accumulator :: {block(), Keyword.t()}
   @typep macro_gen :: (Keyword.t() -> code())
 
+  @doc false
+  @spec __deftagged__(Macro.t(), Keyword.t(), Macro.Env.t()) :: Macro.t()
+  defp __deftagged__(tag, opts, caller) do
+    module = caller.module
+
+    block =
+      (opts ++
+         Macro.expand_once(opts, caller) ++
+         Module.get_attribute(module, :tagged__using__opts, []))
+      |> validate_opts()
+      |> (fn opts -> [module: module] ++ opts end).()
+      |> parse_tag(tag)
+      |> parse_name()
+      |> parse_args()
+      |> generate_parts()
+
+    quote do: (unquote_splicing(block))
+  end
+
   @opts_schema %{
     as: [optional: true, type: {:tuple, {:atom, :list, :any}}],
     of: [optional: true, type: {:tuple, {:any, :list, :any}}],
     guard: [optional: true, type: :boolean],
     type: [optional: true, type: :boolean],
-    pipe_with: [optional: true, type: :boolean]
+    pipe_with: [optional: true, type: :boolean],
+    __private__: [optional: false, type: :boolean]
   }
   @doc false
   @spec validate_opts(Keyword.t()) :: Keyword.t()
@@ -243,7 +260,7 @@ defmodule Tagged do
       |> validate!(@opts_schema)
       |> Enum.map(fn {k, v} -> {Map.get(@opts_map, k, k), v} end)
 
-    quote do
+    quote location: :keep do
       Module.register_attribute(__MODULE__, :tagged__using__opts, [])
       Module.put_attribute(__MODULE__, :tagged__using__opts, unquote(opts))
 
