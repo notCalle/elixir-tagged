@@ -88,7 +88,7 @@ in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:tagged, "~> 0.4.1"}
+    {:tagged, "~> 0.4.2"}
   ]
 end
 ```
