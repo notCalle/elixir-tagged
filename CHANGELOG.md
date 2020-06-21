@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The `|> with_...()` macros didn't work unless the module was `import`:ed
+
 ### Added
 
 - Definition of private tagged tuples.
