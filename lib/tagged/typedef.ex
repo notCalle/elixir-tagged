@@ -69,13 +69,13 @@ defmodule Tagged.Typedef do
   @doc false
   @spec gen_typedef(atom(), atom(), Macro.t(), boolean()) :: Macro.t()
   def gen_typedef(name, tag, [], false) do
-    quote do
+    quote location: :keep do
       @type unquote(name)() :: unquote(tag)
     end
   end
 
   def gen_typedef(name, tag, [], true) do
-    quote do
+    quote location: :keep do
       @typep unquote(name)() :: unquote(tag)
     end
   end
@@ -100,13 +100,13 @@ defmodule Tagged.Typedef do
   #     => ** (CompileError) ... type error/0 is already defined
   #
   def gen_typedef(name, tag, of_type, false) do
-    quote do
+    quote location: :keep do
       @type unquote(name)() :: {unquote(tag), unquote_splicing(of_type)}
     end
   end
 
   def gen_typedef(name, tag, of_type, true) do
-    quote do
+    quote location: :keep do
       @typep unquote(name)() :: {unquote(tag), unquote_splicing(of_type)}
     end
   end

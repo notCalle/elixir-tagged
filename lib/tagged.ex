@@ -260,7 +260,7 @@ defmodule Tagged do
       |> validate!(@opts_schema)
       |> Enum.map(fn {k, v} -> {Map.get(@opts_map, k, k), v} end)
 
-    quote do
+    quote location: :keep do
       Module.register_attribute(__MODULE__, :tagged__using__opts, [])
       Module.put_attribute(__MODULE__, :tagged__using__opts, unquote(opts))
 

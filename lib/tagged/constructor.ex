@@ -68,7 +68,7 @@ defmodule Tagged.Constructor do
   defp gen_doc(_, _, _, _, true), do: nil
 
   defp gen_doc(ex_tag, module, name, 0, false) do
-    quote do
+    quote location: :keep do
       @doc """
       Constructor `#{unquote(name)}/0` for `#{unquote(ex_tag)}` tags.
 
@@ -91,7 +91,7 @@ defmodule Tagged.Constructor do
     ex_hit = "{:#{ex_tag}, #{ex_vals}}"
     ex_miss = "{:not_#{ex_tag}, #{ex_vals}}"
 
-    quote do
+    quote location: :keep do
       @doc """
       Constructor `#{unquote(name)}/#{unquote(arity)}` for `:#{unquote(ex_tag)}`
       tagged value tuples. Can also be used to destructure tuples.
@@ -109,13 +109,13 @@ defmodule Tagged.Constructor do
 
   @spec gen_constructor(atom(), atom(), integer(), boolean()) :: Macro.t()
   defp gen_constructor(tag, name, 0, false) do
-    quote do
+    quote location: :keep do
       defmacro unquote(name)(), do: unquote(tag)
     end
   end
 
   defp gen_constructor(tag, name, 0, true) do
-    quote do
+    quote location: :keep do
       defmacrop unquote(name)(), do: unquote(tag)
     end
   end
@@ -123,7 +123,7 @@ defmodule Tagged.Constructor do
   defp gen_constructor(tag, name, arity, false) do
     cons_args = Macro.generate_arguments(arity, nil)
 
-    quote do
+    quote location: :keep do
       defmacro unquote(name)(unquote_splicing(cons_args)) do
         args = [unquote_splicing(cons_args)]
         tag = unquote(tag)
@@ -136,7 +136,7 @@ defmodule Tagged.Constructor do
   defp gen_constructor(tag, name, arity, true) do
     cons_args = Macro.generate_arguments(arity, nil)
 
-    quote do
+    quote location: :keep do
       defmacrop unquote(name)(unquote_splicing(cons_args)) do
         args = [unquote_splicing(cons_args)]
         tag = unquote(tag)

@@ -44,7 +44,7 @@ defmodule Tagged.Guard do
   defp gen_doc(_, _, _, _, true), do: nil
 
   defp gen_doc(ex_tag, module, name, 0, false) do
-    quote do
+    quote location: :keep do
       @doc """
       Guard macro for testing if `term` is a `#{unquote(ex_tag)}` tag, with
       constructor `#{unquote(name)}/0`.
@@ -64,7 +64,7 @@ defmodule Tagged.Guard do
   defp gen_doc(ex_tag, module, name, arity, false) do
     args = for(i <- 1..arity, do: "#{i}") |> Enum.join(", ")
 
-    quote do
+    quote location: :keep do
       @doc """
       Guard macro for testing if `term` is a `#{unquote(ex_tag)}` tagged tuple,
       with constructor `#{unquote(name)}/#{unquote(arity)}`.
@@ -83,21 +83,21 @@ defmodule Tagged.Guard do
 
   @spec gen_guard(atom(), atom(), integer(), boolean()) :: Macro.t()
   defp gen_guard(tag, name, 0, false) do
-    quote do
+    quote location: :keep do
       defguard unquote(:"is_#{name}")(term)
                when term == unquote(tag)
     end
   end
 
   defp gen_guard(tag, name, 0, true) do
-    quote do
+    quote location: :keep do
       defguardp unquote(:"is_#{name}")(term)
                 when term == unquote(tag)
     end
   end
 
   defp gen_guard(tag, name, arity, false) do
-    quote do
+    quote location: :keep do
       defguard unquote(:"is_#{name}")(term)
                when elem(term, 0) == unquote(tag) and
                       tuple_size(term) == unquote(arity + 1)
@@ -105,7 +105,7 @@ defmodule Tagged.Guard do
   end
 
   defp gen_guard(tag, name, arity, true) do
-    quote do
+    quote location: :keep do
       defguardp unquote(:"is_#{name}")(term)
                 when elem(term, 0) == unquote(tag) and
                        tuple_size(term) == unquote(arity + 1)

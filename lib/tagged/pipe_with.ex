@@ -90,7 +90,7 @@ defmodule Tagged.PipeWith do
   defp gen_doc(_, _, _, _, true), do: nil
 
   defp gen_doc(module, name, 0, ex_tag, false) do
-    quote do
+    quote location: :keep do
       @doc """
       Calls `f/0`, when `term` matches `#{unquote(ex_tag)}`
       When `term` does not match, is is returned as-is.
@@ -114,7 +114,7 @@ defmodule Tagged.PipeWith do
 
     ex_hit = "{:#{ex_tag}, #{vals}}"
 
-    quote do
+    quote location: :keep do
       @doc """
       Calls `f/#{unquote(arity)}` with the wrapped value, when `term` matches a
       `#{unquote(ex_tag)}` tagged tuple. When `term` does not match, is is
@@ -152,7 +152,7 @@ defmodule Tagged.PipeWith do
   defp gen_pipe_with(name, tag, arity, false) do
     args = Macro.generate_arguments(arity, nil)
 
-    quote do
+    quote location: :keep do
       def unquote(:"with_#{name}")(term, f) do
         with {unquote(tag), unquote_splicing(args)} <- term,
              do: f.(unquote_splicing(args))
@@ -163,7 +163,7 @@ defmodule Tagged.PipeWith do
   defp gen_pipe_with(name, tag, arity, true) do
     args = Macro.generate_arguments(arity, nil)
 
-    quote do
+    quote location: :keep do
       defp unquote(:"with_#{name}")(term, f) do
         with {unquote(tag), unquote_splicing(args)} <- term,
              do: f.(unquote_splicing(args))
